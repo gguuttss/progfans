@@ -1,0 +1,29 @@
+name: Scrape Royal Road
+
+# Manual-dispatch first; a scheduled cadence gets enabled once we've validated
+# scaling and decided how often to refresh.
+on:
+  workflow_dispatch:
+    inputs:
+      max_pages:
+        description: "Best-rated list pages to crawl (20 fictions/page)"
+        default: "5"
+  # schedule:
+  #   - cron: "0 4 * * *"
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Crawl
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          RR_MAX_PAGES: ${{ inputs.max_pages }}
+        run: pnpm --filter @progfans/scraper crawl

@@ -1,0 +1,1 @@
+ALTER TYPE "public"."series_status" ADD VALUE 'stub' BEFORE 'unknown';

@@ -1,0 +1,39 @@
+{
+  "name": "@progfans/scraper",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "crawl": "tsx src/index.ts",
+    "add:series": "tsx src/add.ts",
+    "refresh:rr": "tsx src/royalroad/refresh.ts",
+    "refresh:gr": "tsx src/books/refresh.ts",
+    "books": "tsx src/books/build.ts",
+    "remap": "tsx src/remap.ts",
+    "enrich:gr": "tsx src/goodreads/enrich.ts",
+    "import:gr-list": "tsx src/goodreads/import-list.ts",
+    "import:lo5": "tsx src/lo5/import.ts",
+    "dedup": "tsx src/external/dedup.ts",
+    "host:covers": "tsx src/covers/run.ts",
+    "covers:gr": "tsx src/covers/from-goodreads.ts",
+    "backfill:gr": "tsx src/goodreads/backfill.ts",
+    "export:untagged": "tsx src/tropes/export-untagged.ts",
+    "apply-ai": "tsx src/tropes/apply-ai.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.3",
+    "dotenv": "^17.4.2",
+    "playwright": "^1.61.0",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  },
+  "dependencies": {
+    "@progfans/db": "workspace:*",
+    "cheerio": "^1.2.0",
+    "drizzle-orm": "^0.45.2",
+    "postgres": "^3.4.9"
+  }
+}

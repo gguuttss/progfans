@@ -1,0 +1,113 @@
+[
+  {
+    "id": "2555",
+    "slugs": [
+      "litrpg",
+      "system-apocalypse",
+      "post-apocalyptic-survival",
+      "dungeon-crawling",
+      "comedy"
+    ]
+  },
+  { "id": "2556", "slugs": ["litrpg", "academy-school", "weak-to-strong", "hard-magic"] },
+  { "id": "2557", "slugs": ["academy-school", "weak-to-strong", "secondary-world"] },
+  {
+    "id": "2558",
+    "slugs": ["portal-fantasy-isekai", "transmigration", "beast-monster-taming", "weak-to-strong"]
+  },
+  { "id": "2559", "slugs": ["cultivation-xianxia", "weak-to-strong", "secondary-world"] },
+  { "id": "2560", "slugs": ["tower-climbing", "weak-to-strong", "secondary-world"] },
+  { "id": "2561", "slugs": ["litrpg", "gamelit", "skill-collection", "competent-mc"] },
+  {
+    "id": "2562",
+    "slugs": ["portal-fantasy-isekai", "transmigration", "non-human-mc", "weak-to-strong"]
+  },
+  { "id": "2563", "slugs": ["vrmmo", "crafting-smithing", "kingdom-base-building"] },
+  { "id": "2564", "slugs": ["superpowers", "urban-earth-fantasy", "anti-hero", "competent-mc"] },
+  { "id": "2565", "slugs": ["cultivation-xianxia", "weak-to-strong", "wuxia"] },
+  { "id": "2566", "slugs": ["vrmmo", "regression-second-chance", "alchemy-potions"] },
+  { "id": "2567", "slugs": ["vrmmo", "gamelit", "alchemy-potions", "competent-mc"] },
+  { "id": "2568", "slugs": ["litrpg", "system-apocalypse", "reincarnation", "weak-to-strong"] },
+  { "id": "2569", "slugs": ["vrmmo", "regression-second-chance", "litrpg"] },
+  { "id": "2570", "slugs": ["superpowers", "urban-earth-fantasy", "anti-hero", "non-human-mc"] },
+  {
+    "id": "2571",
+    "slugs": ["litrpg", "tower-climbing", "summoner-necromancy", "skill-collection"]
+  },
+  { "id": "2572", "slugs": ["system-apocalypse", "litrpg", "weak-to-strong"] },
+  { "id": "2573", "slugs": ["reincarnation", "non-human-mc", "weak-to-strong", "secondary-world"] },
+  { "id": "2574", "slugs": ["litrpg", "reincarnation", "regression-second-chance"] },
+  { "id": "2575", "slugs": ["secondary-world", "class-job-system", "weak-to-strong"] },
+  {
+    "id": "2576",
+    "slugs": ["academy-school", "portal-fantasy-isekai", "system-apocalypse", "dungeon-crawling"]
+  },
+  { "id": "2577", "slugs": ["secondary-world", "weak-to-strong", "class-job-system"] },
+  { "id": "2578", "slugs": ["portal-fantasy-isekai", "non-human-mc", "secondary-world"] },
+  { "id": "2579", "slugs": ["vrmmo", "gamelit", "weak-to-strong"] },
+  { "id": "2580", "slugs": ["portal-fantasy-isekai", "transmigration", "secondary-world"] },
+  { "id": "2581", "slugs": ["cultivation-xianxia", "soft-magic", "genius-strategist"] },
+  { "id": "2582", "slugs": ["time-loop", "litrpg", "weak-to-strong", "war-military"] },
+  { "id": "2583", "slugs": ["reincarnation", "non-human-mc", "weak-to-strong", "secondary-world"] },
+  { "id": "2584", "slugs": ["litrpg", "reincarnation", "class-job-system"] },
+  { "id": "2585", "slugs": ["system-apocalypse", "portal-fantasy-isekai", "litrpg"] },
+  { "id": "2586", "slugs": ["vrmmo", "gamelit", "secondary-world"] },
+  { "id": "2587", "slugs": ["vrmmo", "gamelit", "weak-to-strong"] },
+  {
+    "id": "2588",
+    "slugs": ["portal-fantasy-isekai", "isekai", "litrpg", "gamelit", "crafting-smithing"]
+  },
+  { "id": "2589", "slugs": ["reincarnation", "cultivation-xianxia", "weak-to-strong"] },
+  { "id": "2590", "slugs": ["reincarnation", "secondary-world", "dungeon-crawling"] },
+  {
+    "id": "2591",
+    "slugs": ["portal-fantasy-isekai", "secondary-world", "anti-hero", "weak-to-strong"]
+  },
+  { "id": "2592", "slugs": ["transmigration", "secondary-world", "competent-mc"] },
+  { "id": "2593", "slugs": ["reincarnation", "secondary-world", "weak-to-strong"] },
+  { "id": "2595", "slugs": ["litrpg", "dungeon-crawling", "secondary-world"] },
+  { "id": "2596", "slugs": ["system-apocalypse", "litrpg", "gamelit", "merchant-trade"] },
+  { "id": "2597", "slugs": ["reincarnation", "cultivation-xianxia", "weak-to-strong"] },
+  { "id": "2599", "slugs": ["litrpg", "system-apocalypse", "weak-to-strong"] },
+  { "id": "2600", "slugs": ["reincarnation", "weak-to-strong", "war-military"] },
+  {
+    "id": "2601",
+    "slugs": ["system-apocalypse", "litrpg", "portal-fantasy-isekai", "weak-to-strong"]
+  },
+  { "id": "2602", "slugs": ["time-loop", "litrpg", "weak-to-strong"] },
+  { "id": "2603", "slugs": ["litrpg", "system-apocalypse", "weak-to-strong", "war-military"] },
+  { "id": "2604", "slugs": ["class-job-system", "weak-to-strong", "secondary-world"] },
+  { "id": "2605", "slugs": ["portal-fantasy-isekai", "reincarnation", "litrpg"] },
+  { "id": "2606", "slugs": ["time-loop", "litrpg", "dungeon-crawling", "weak-to-strong"] },
+  { "id": "2607", "slugs": ["portal-fantasy-isekai", "system-apocalypse", "weak-to-strong"] },
+  { "id": "2608", "slugs": ["system-apocalypse", "litrpg", "competent-mc"] },
+  { "id": "2609", "slugs": ["litrpg", "stats-on-page", "weak-to-strong"] },
+  { "id": "2610", "slugs": ["cultivation-xianxia", "secondary-world"] },
+  { "id": "2611", "slugs": ["portal-fantasy-isekai", "system-apocalypse", "gamelit"] },
+  { "id": "2612", "slugs": ["secondary-world", "tower-climbing", "competent-mc"] },
+  { "id": "2613", "slugs": ["system-apocalypse", "litrpg", "weird-protagonist"] },
+  { "id": "2614", "slugs": ["vrmmo", "gamelit", "head-start"] },
+  { "id": "2615", "slugs": ["vrmmo", "litrpg", "secondary-world", "overpowered-mc"] },
+  { "id": "2616", "slugs": ["class-job-system", "secondary-world", "weak-to-strong"] },
+  { "id": "2617", "slugs": ["system-apocalypse", "weak-to-strong", "revenge"] },
+  { "id": "2618", "slugs": ["transmigration", "secondary-world", "war-military"] },
+  { "id": "2619", "slugs": ["dungeon-crawling", "system-apocalypse", "weak-to-strong"] },
+  { "id": "2620", "slugs": ["gamelit", "horror", "secondary-world"] },
+  { "id": "2621", "slugs": ["dungeon-crawling", "crafting-smithing", "weak-to-strong"] },
+  { "id": "2622", "slugs": ["secondary-world", "hard-magic", "weak-to-strong"] },
+  { "id": "2623", "slugs": ["cultivation-xianxia", "hard-magic", "weak-to-strong"] },
+  { "id": "2624", "slugs": ["academy-school", "secondary-world", "weak-to-strong"] },
+  { "id": "2625", "slugs": ["portal-fantasy-isekai", "cultivation-xianxia", "weak-to-strong"] },
+  { "id": "2626", "slugs": ["portal-fantasy-isekai", "secondary-world", "competent-mc"] },
+  { "id": "2627", "slugs": ["non-human-mc", "weak-to-strong", "secondary-world"] },
+  { "id": "2628", "slugs": ["academy-school", "secondary-world", "weak-to-strong"] },
+  { "id": "2629", "slugs": ["dungeon-crawling", "dark-grimdark", "secondary-world"] },
+  { "id": "2630", "slugs": ["system-apocalypse", "cultivation-xianxia", "weak-to-strong"] },
+  { "id": "2631", "slugs": ["reincarnation", "portal-fantasy-isekai", "weak-to-strong"] },
+  { "id": "2632", "slugs": ["system-apocalypse", "portal-fantasy-isekai", "litrpg"] },
+  { "id": "2633", "slugs": ["vrmmo", "gamelit", "anti-hero", "revenge"] },
+  { "id": "2634", "slugs": ["secondary-world", "alchemy-potions", "merchant-trade"] },
+  { "id": "2635", "slugs": ["litrpg", "system-apocalypse", "hard-magic"] },
+  { "id": "2636", "slugs": ["system-apocalypse", "weak-to-strong", "competent-mc"] },
+  { "id": "2637", "slugs": ["vrmmo", "gamelit", "weak-to-strong"] }
+]

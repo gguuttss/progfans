@@ -1,0 +1,11 @@
+node_modules
+.next
+dist
+build
+drizzle
+.husky/_
+pnpm-lock.yaml
+*.log
+
+# Scraper HTML fixtures — keep byte-identical for deterministic parser tests.
+packages/scraper/fixtures/

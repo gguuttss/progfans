@@ -1,0 +1,50 @@
+name: Refresh catalog data
+
+# Updates VOLATILE data only (ratings, # ratings, status, word count, chapters,
+# new books). Curated fields (titles, descriptions, tropes) are never touched.
+# Both RR and GR are tiered (stalest series first, capped per run) and the cron
+# runs every 6 hours, so the whole catalogue cycles in roughly a week without a
+# single run getting near the time limit.
+on:
+  workflow_dispatch:
+    inputs:
+      rr_limit:
+        description: "Royal Road series to refresh this run"
+        default: "60"
+      gr_limit:
+        description: "Goodreads series to refresh this run"
+        default: "50"
+  schedule:
+    - cron: "0 */6 * * *" # every 6 hours
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Cache Playwright browser
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}
+      - name: Install Chromium (Goodreads is behind a WAF)
+        run: pnpm --filter @progfans/scraper exec playwright install --with-deps chromium
+
+      - name: Refresh Royal Road (status, words, chapters, rating, followers)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          RR_REFRESH_LIMIT: ${{ github.event.inputs.rr_limit || '60' }}
+        run: pnpm --filter @progfans/scraper refresh:rr
+
+      - name: Refresh Goodreads (ratings + new books)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          REFRESH_LIMIT: ${{ github.event.inputs.gr_limit || '50' }}
+        run: pnpm --filter @progfans/scraper refresh:gr

@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  /* Cool stone + aged gold — deliberately not cream/terracotta or black/acid. */
+  --color-paper: #edecf1;
+  --color-card: #fbfbfd;
+  --color-ink: #1b1a23;
+  --color-muted: #67646f;
+  --color-line: #dedce6;
+  --color-gold: #b07d2b;
+
+  /* Loot-rarity spectrum — the signature. common → legendary. */
+  --color-common: #8a8893;
+  --color-uncommon: #46a86b;
+  --color-rare: #3e7bd1;
+  --color-epic: #8a5cd6;
+  --color-legendary: #c9a227;
+
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+}
+
+:root {
+  color-scheme: light;
+}
+
+/* Dark mode — toggled by a `.dark` class on <html> (set from the theme cookie).
+   The app styles in semantic tokens, so re-pointing the CSS vars flips it all. */
+.dark {
+  color-scheme: dark;
+  --color-paper: #15141b;
+  --color-card: #1f1e28;
+  --color-ink: #ecebf1;
+  --color-muted: #9b97a6;
+  --color-line: #322f3d;
+  --color-gold: #cd9a3c;
+
+  --color-common: #97949f;
+  --color-uncommon: #54b97a;
+  --color-rare: #5a90db;
+  --color-epic: #9c72e0;
+  --color-legendary: #d3ad3a;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Tabular figures for the status-window stat readouts. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}

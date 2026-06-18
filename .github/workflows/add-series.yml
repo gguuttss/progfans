@@ -1,0 +1,39 @@
+name: Add a series
+
+# Add a requested series from a Royal Road and/or Goodreads link. RR gives rich
+# metadata + tropes; GR gives the book list + per-book ratings. Provide either
+# or both — both attach to ONE series. (Then mark the request "added" in
+# /admin/pending.)
+on:
+  workflow_dispatch:
+    inputs:
+      rr_url:
+        description: "Royal Road fiction URL (optional)"
+        default: ""
+      gr_url:
+        description: "Goodreads book or series URL (optional)"
+        default: ""
+
+jobs:
+  add:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Chromium (for Goodreads)
+        if: inputs.gr_url != ''
+        run: pnpm --filter @progfans/scraper exec playwright install --with-deps chromium
+
+      - name: Add series
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: >
+          pnpm --filter @progfans/scraper add:series --
+          ${{ inputs.rr_url != '' && format('--rr {0}', inputs.rr_url) || '' }}
+          ${{ inputs.gr_url != '' && format('--gr {0}', inputs.gr_url) || '' }}
