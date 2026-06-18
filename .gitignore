@@ -43,3 +43,6 @@ coverage/
 
 # Private planning / strategy docs (not for the public repo)
 docs/
+
+# Generated rewrite/tagging chunk + output data (regenerable from the DB)
+packages/scraper/src/rewrite/data/
