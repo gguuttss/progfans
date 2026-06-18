@@ -72,7 +72,16 @@ export const looksLikeFanfic = (title: string): boolean => FANFIC.test(title);
 // Manually-curated false matches that slip past the heuristics — high-vote
 // same-title collisions with unrelated published books. Add the RR series
 // title here (annotations are ignored) to suppress Goodreads matching.
-const GR_DENYLIST = new Set(["to the far shore"]);
+const GR_DENYLIST = new Set([
+  "to the far shore",
+  "mistakes were made", // mainstream same-title book (52k ratings)
+  "the academy", // mainstream "The Academy" (124k ratings)
+  "chimera",
+  "lost in love",
+  "lost in translation", // Nicole Mones' novel
+  "silhouette", // a romance novella
+  "post-human", // David Simpson's sci-fi saga
+]);
 
 export const isGrDenylisted = (title: string): boolean =>
   GR_DENYLIST.has(

@@ -144,6 +144,8 @@ describe("goodreads search", () => {
   it("suppresses denylisted false matches (annotations ignored)", () => {
     expect(isGrDenylisted("To The Far Shore")).toBe(true);
     expect(isGrDenylisted("To the Far Shore [LitRPG]")).toBe(true);
+    expect(isGrDenylisted("Mistakes Were Made [Remorseful Demon King Reincarnation]")).toBe(true);
+    expect(isGrDenylisted("Post-Human")).toBe(true);
     expect(isGrDenylisted("Mother of Learning")).toBe(false);
   });
 });
