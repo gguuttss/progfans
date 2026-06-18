@@ -45,6 +45,7 @@ export async function SiteHeader() {
             avatarUrl={profile?.avatarUrl ?? null}
             initialDark={dark}
             isAdmin={Boolean(profile?.isAdmin)}
+            isOwner={Boolean(profile?.isOwner)}
             pendingCount={pending}
           />
         ) : (

@@ -2,7 +2,7 @@
 
 import { sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { requireAdmin, requireProfile } from "@/lib/auth";
+import { requireAdmin, requireOwner, requireProfile } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
   BOOK_LINK_SOURCES,
@@ -127,4 +127,17 @@ export async function markBookAdded(id: number): Promise<void> {
     sql`update change_requests set status = 'added' where id = ${id} and kind = 'new_series'`,
   );
   revalidatePath("/admin/pending");
+}
+
+/**
+ * Owner-only: grant or revoke a user's admin rights. Owners can't be demoted
+ * here, and the owner can't change their own role through this control.
+ */
+export async function setUserAdmin(targetId: string, makeAdmin: boolean): Promise<void> {
+  const { user } = await requireOwner();
+  if (targetId === user.id) return;
+  await db.execute(
+    sql`update profiles set is_admin = ${makeAdmin} where id = ${targetId} and is_owner = false`,
+  );
+  revalidatePath("/admin/users");
 }

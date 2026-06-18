@@ -490,12 +490,13 @@ export type FullProfile = {
   gender: string | null;
   avatarUrl: string | null;
   isAdmin: boolean;
+  isOwner: boolean;
   createdAt: string;
 };
 
 export async function getFullProfile(username: string): Promise<FullProfile | null> {
   const [r] = await db.execute<Record<string, unknown>>(sql`
-    select id, username, bio, location, birthday, birthday_precision, gender, avatar_url, is_admin, created_at
+    select id, username, bio, location, birthday, birthday_precision, gender, avatar_url, is_admin, is_owner, created_at
     from profiles where username = ${username.toLowerCase()} limit 1`);
   if (!r) return null;
   return {
@@ -508,6 +509,7 @@ export async function getFullProfile(username: string): Promise<FullProfile | nu
     gender: (r.gender as string | null) ?? null,
     avatarUrl: (r.avatar_url as string | null) ?? null,
     isAdmin: Boolean(r.is_admin),
+    isOwner: Boolean(r.is_owner),
     createdAt: String(r.created_at),
   };
 }
@@ -639,6 +641,33 @@ export async function getApprovedBookRequests(): Promise<PendingChange[]> {
     proposer: (r.proposer as string | null) ?? null,
     seriesTitle: null,
     seriesSlug: null,
+  }));
+}
+
+export type ManagedUser = {
+  id: string;
+  username: string;
+  avatarUrl: string | null;
+  isAdmin: boolean;
+  isOwner: boolean;
+};
+
+/** Users for the owner's admin-management page. Optional username search. */
+export async function listManagedUsers(search?: string): Promise<ManagedUser[]> {
+  const term = (search ?? "").trim().toLowerCase();
+  const filter = term ? sql`where username ilike ${`%${term}%`}` : sql``;
+  const rows = await db.execute<Record<string, unknown>>(sql`
+    select id, username, avatar_url, is_admin, is_owner
+    from profiles
+    ${filter}
+    order by is_owner desc, is_admin desc, username asc
+    limit 100`);
+  return rows.map((r) => ({
+    id: String(r.id),
+    username: String(r.username),
+    avatarUrl: (r.avatar_url as string | null) ?? null,
+    isAdmin: Boolean(r.is_admin),
+    isOwner: Boolean(r.is_owner),
   }));
 }
 

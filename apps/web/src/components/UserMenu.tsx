@@ -43,12 +43,14 @@ export function UserMenu({
   avatarUrl,
   initialDark,
   isAdmin,
+  isOwner,
   pendingCount,
 }: {
   username: string;
   avatarUrl: string | null;
   initialDark: boolean;
   isAdmin: boolean;
+  isOwner: boolean;
   pendingCount: number;
 }) {
   const [open, setOpen] = useState(false);
@@ -125,6 +127,16 @@ export function UserMenu({
                   {pendingCount}
                 </span>
               )}
+            </Link>
+          )}
+          {isOwner && (
+            <Link
+              href="/admin/users"
+              role="menuitem"
+              className={item}
+              onClick={() => setOpen(false)}
+            >
+              Manage users
             </Link>
           )}
           <div className="my-1 border-t border-line" role="separator" />

@@ -75,9 +75,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
           <div className="flex items-start justify-between gap-3">
             <h1 className="flex min-w-0 flex-wrap items-center gap-2 font-display text-3xl leading-tight font-extrabold break-words">
               @{profile.username}
-              {profile.isAdmin && (
+              {(profile.isOwner || profile.isAdmin) && (
                 <span className="rounded-full border border-gold bg-gold/10 px-2 py-0.5 font-mono text-[11px] font-medium tracking-wider text-gold uppercase">
-                  Admin
+                  {profile.isOwner ? "Owner" : "Admin"}
                 </span>
               )}
             </h1>

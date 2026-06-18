@@ -11,6 +11,7 @@ export type Profile = {
   displayName: string | null;
   avatarUrl: string | null;
   isAdmin: boolean;
+  isOwner: boolean;
 };
 
 /** The authenticated user, or null (also null when Supabase isn't configured). */
@@ -34,6 +35,7 @@ const PROFILE_COLS = {
   displayName: schema.profiles.displayName,
   avatarUrl: schema.profiles.avatarUrl,
   isAdmin: schema.profiles.isAdmin,
+  isOwner: schema.profiles.isOwner,
 } as const;
 
 export async function getProfile(userId: string): Promise<Profile | null> {
@@ -69,6 +71,13 @@ export async function requireProfile(): Promise<{ user: User; profile: Profile }
 export async function requireAdmin(): Promise<{ user: User; profile: Profile }> {
   const ctx = await requireProfile();
   if (!ctx.profile.isAdmin) redirect("/");
+  return ctx;
+}
+
+/** Require the site owner; sends everyone else home. */
+export async function requireOwner(): Promise<{ user: User; profile: Profile }> {
+  const ctx = await requireProfile();
+  if (!ctx.profile.isOwner) redirect("/");
   return ctx;
 }
 

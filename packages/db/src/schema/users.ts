@@ -31,6 +31,8 @@ export const profiles = pgTable("profiles", {
   gender: text(),
   avatarUrl: text(),
   isAdmin: boolean().notNull().default(false),
+  // The site owner: a super-admin who can grant/revoke admin from the UI.
+  isOwner: boolean().notNull().default(false),
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 });
 
