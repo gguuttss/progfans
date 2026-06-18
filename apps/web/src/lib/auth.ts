@@ -1,5 +1,6 @@
 import type { User } from "@supabase/supabase-js";
 import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db, schema } from "./db";
 import { isSupabaseConfigured } from "./supabase/config";
@@ -65,6 +66,27 @@ export async function requireProfile(): Promise<{ user: User; profile: Profile }
   const profile = await getProfile(user.id);
   if (!profile) redirect("/welcome");
   return { user, profile };
+}
+
+/**
+ * After an email/OAuth verification, ensure the user has a profile — creating it
+ * from the username they stashed at signup when possible — and return where to
+ * send them: `next` if they have a profile, else `/welcome` to pick a username.
+ * Shared by the OAuth callback and the email-confirmation route.
+ */
+export async function postVerifyDestination(user: User, next: string): Promise<string> {
+  let profile = await getProfile(user.id);
+  if (!profile) {
+    const username = (user.user_metadata?.username as string | undefined) ?? "";
+    if (username && !normalizeUsername(username).error) {
+      const { error } = await createProfile(user.id, username);
+      if (!error) {
+        revalidatePath("/", "layout");
+        profile = await getProfile(user.id);
+      }
+    }
+  }
+  return profile ? next : "/welcome";
 }
 
 /** Require an admin; sends non-admins home. */

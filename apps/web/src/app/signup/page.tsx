@@ -19,6 +19,67 @@ export default function SignupPage() {
         prog<span className="text-gold">fans</span>
       </Link>
 
+      {state.sent ? (
+        <CheckEmail email={state.email} />
+      ) : (
+        <SignupCard state={state} formAction={formAction} pending={pending} />
+      )}
+
+      {!state.sent && (
+        <p className="mt-6 text-center text-sm text-muted">
+          Already have an account?{" "}
+          <Link href="/login" className="font-medium text-gold underline-offset-2 hover:underline">
+            Log in
+          </Link>
+        </p>
+      )}
+    </div>
+  );
+}
+
+function CheckEmail({ email }: { email?: string }) {
+  return (
+    <div className="rounded-xl border border-line bg-card p-6 text-center">
+      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gold/15 text-gold">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="2" />
+          <path d="m4 7 8 6 8-6" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+        </svg>
+      </div>
+      <h1 className="font-display text-xl font-bold">Check your email</h1>
+      <p className="mt-2 text-sm text-muted">
+        We sent a confirmation link{email ? " to " : ""}
+        {email && <span className="font-medium text-ink">{email}</span>}. Click it to activate your
+        account and finish setting up your profile.
+      </p>
+      <p className="mt-4 text-xs text-muted">
+        Didn&apos;t get it? Check your spam folder, or{" "}
+        <Link href="/signup" className="font-medium text-gold hover:underline">
+          try again
+        </Link>
+        .
+      </p>
+      <Link
+        href="/login"
+        className="mt-5 inline-block text-sm font-medium text-gold underline-offset-2 hover:underline"
+      >
+        Back to log in
+      </Link>
+    </div>
+  );
+}
+
+function SignupCard({
+  state,
+  formAction,
+  pending,
+}: {
+  state: SignupState;
+  formAction: (formData: FormData) => void;
+  pending: boolean;
+}) {
+  return (
+    <>
       <div className="rounded-xl border border-line bg-card p-6">
         <h1 className="mb-5 font-display text-xl font-bold">Create your account</h1>
 
@@ -71,7 +132,6 @@ export default function SignupPage() {
           </label>
 
           {state.error && <p className="text-sm text-rose-600">{state.error}</p>}
-          {state.message && <p className="text-sm text-emerald-700">{state.message}</p>}
 
           <button
             type="submit"
@@ -82,13 +142,6 @@ export default function SignupPage() {
           </button>
         </form>
       </div>
-
-      <p className="mt-6 text-center text-sm text-muted">
-        Already have an account?{" "}
-        <Link href="/login" className="font-medium text-gold underline-offset-2 hover:underline">
-          Log in
-        </Link>
-      </p>
-    </div>
+    </>
   );
 }
