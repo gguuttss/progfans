@@ -113,12 +113,16 @@ async function addGoodreads(
 async function main() {
   const rrUrl = arg("--rr");
   const grUrl = arg("--gr");
+  const seriesArg = arg("--series"); // attach GR to an existing series (fix bad GR data)
   if (!rrUrl && !grUrl) {
-    console.log("usage: add -- --rr <royalroad url> --gr <goodreads url>  (either or both)");
+    console.log(
+      "usage: add -- --rr <royalroad url> --gr <goodreads url>   (either or both)\n" +
+        "       add -- --series <id> --gr <goodreads url>    (re-attach GR to an existing series)",
+    );
     return;
   }
 
-  let seriesId: number | null = null;
+  let seriesId: number | null = seriesArg ? Number(seriesArg) : null;
   let title: string | null = null;
   if (rrUrl) {
     const r = await addRoyalRoad(rrUrl);
