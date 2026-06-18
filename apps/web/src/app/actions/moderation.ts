@@ -67,7 +67,7 @@ async function applySeriesEdit(seriesId: number, p: SeriesEditPayload): Promise<
   });
 }
 
-export type SubmitResult = { applied: boolean };
+export type SubmitResult = { applied: boolean; error?: string };
 
 /** Edit a series. Admins apply immediately; everyone else's lands as pending. */
 export async function submitSeriesEdit(
@@ -78,15 +78,20 @@ export async function submitSeriesEdit(
   const { user, profile } = await requireProfile();
   const payload = sanitizeEdit(raw);
 
-  if (profile.isAdmin) {
-    await applySeriesEdit(seriesId, payload);
-    revalidatePath("/series/[slug]", "page");
-    return { applied: true };
-  }
+  try {
+    if (profile.isAdmin) {
+      await applySeriesEdit(seriesId, payload);
+      revalidatePath("/series/[slug]", "page");
+      return { applied: true };
+    }
 
-  await db.execute(sql`insert into change_requests (kind, series_id, proposer_id, payload, note)
-    values ('edit', ${seriesId}, ${user.id}, ${JSON.stringify(payload)}::jsonb, ${note.trim().slice(0, 1000) || null})`);
-  return { applied: false };
+    await db.execute(sql`insert into change_requests (kind, series_id, proposer_id, payload, note)
+      values ('edit', ${seriesId}, ${user.id}, ${JSON.stringify(payload)}::jsonb, ${note.trim().slice(0, 1000) || null})`);
+    return { applied: false };
+  } catch (err) {
+    console.error("[submitSeriesEdit] failed for series", seriesId, err);
+    return { applied: false, error: "Couldn't save your changes. Please try again." };
+  }
 }
 
 /** Request a missing book → lands in the admin pending queue. */

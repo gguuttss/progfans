@@ -70,7 +70,7 @@ export default async function BrowsePage({ searchParams }: { searchParams: Promi
               <h1 className="font-display text-2xl font-bold">Browse</h1>
               <span className="tnum font-mono text-sm text-muted">{total} series</span>
             </div>
-            <SortControl signedIn={signedIn} />
+            <SortControl />
           </div>
 
           {items.length === 0 ? (

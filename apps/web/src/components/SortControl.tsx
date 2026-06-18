@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-export function SortControl({ signedIn }: { signedIn: boolean }) {
+export function SortControl() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -36,7 +36,6 @@ export function SortControl({ signedIn }: { signedIn: boolean }) {
           <option value="reviews_rr">Royal Road reviews</option>
           <option value="reviews_gr">Goodreads ratings</option>
         </optgroup>
-        {signedIn && <option value="my_score">My score</option>}
       </select>
     </label>
   );

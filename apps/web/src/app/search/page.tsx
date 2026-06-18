@@ -57,7 +57,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             "Search"
           )}
         </h1>
-        {q && total > 0 && <SortControl signedIn={signedIn} />}
+        {q && total > 0 && <SortControl />}
       </div>
 
       {!q ? (

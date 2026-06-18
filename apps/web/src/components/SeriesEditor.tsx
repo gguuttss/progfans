@@ -115,9 +115,14 @@ export function SeriesEditor({
     if (!form.title.trim()) return setError("Title is required.");
     setError(null);
     start(async () => {
-      const res = await submitSeriesEdit(seriesId, form, note);
-      if (res.applied) router.push(`/series/${slug}`);
-      else setSubmitted(true);
+      try {
+        const res = await submitSeriesEdit(seriesId, form, note);
+        if (res.error) setError(res.error);
+        else if (res.applied) router.push(`/series/${slug}`);
+        else setSubmitted(true);
+      } catch {
+        setError("Saving failed — the server took too long or errored. Please try again.");
+      }
     });
   };
 
