@@ -73,6 +73,10 @@ export const series = pgTable(
     popularity: integer().notNull().default(0),
     eligibilityStatus: eligibilityStatus().notNull().default("eligible"),
 
+    // Precomputed 0–100 percentile tier score (null = untiered). Recomputed by
+    // the tier job after each ratings refresh; the badge grade derives from this.
+    tierScore: real(),
+
     // Generated FTS column over title + description.
     searchVector: tsvector().generatedAlwaysAs(
       sql`to_tsvector('english', coalesce(title, '') || ' ' || coalesce(description, ''))`,

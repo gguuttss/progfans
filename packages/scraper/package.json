@@ -8,6 +8,7 @@
     "add:series": "tsx src/add.ts",
     "refresh:rr": "tsx src/royalroad/refresh.ts",
     "refresh:gr": "tsx src/books/refresh.ts",
+    "recompute:tiers": "tsx src/tiers/recompute.ts",
     "books": "tsx src/books/build.ts",
     "remap": "tsx src/remap.ts",
     "enrich:gr": "tsx src/goodreads/enrich.ts",

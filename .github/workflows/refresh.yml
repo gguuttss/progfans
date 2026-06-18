@@ -48,3 +48,9 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           REFRESH_LIMIT: ${{ github.event.inputs.gr_limit || '50' }}
         run: pnpm --filter @progfans/scraper refresh:gr
+
+      - name: Recompute tier scores (percentiles shift as ratings change)
+        if: always() # keep scores fresh even if a refresh step partially failed
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: pnpm --filter @progfans/scraper recompute:tiers

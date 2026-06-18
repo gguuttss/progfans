@@ -1,13 +1,4 @@
-import {
-  type Grade,
-  type MaxCounts,
-  RATING_CAP,
-  RATING_FLOOR,
-  SCORE_MIN_VOTES,
-  scoreSeries,
-  type SeriesStats,
-  VOLUME_WEIGHT,
-} from "@progfans/db/rating";
+import { type Grade, SCORE_MIN_VOTES, tierGradeFromScore } from "@progfans/db/rating";
 import { sql } from "drizzle-orm";
 import { db } from "./db";
 import { EMPTY_LINKS, type LinkSource, type SeriesEditPayload } from "./series-edit";
@@ -18,58 +9,10 @@ export type SourceRating = { value: number; votes: number };
 const toRating = (value: unknown, votes: unknown): SourceRating | null =>
   value == null ? null : { value: Number(value), votes: Number(votes ?? 0) };
 
-/**
- * The tier score as a SQL expression, so we can sort the *whole* catalog by it
- * (not just a fetched page). Mirrors `scoreSeries` exactly, reusing the same
- * constants. Columns expected in scope: rr/gr/pf (.value, .votes). NULL when no
- * platform crosses its threshold (sorts last). Constants are code-controlled.
- */
-function tierScoreSql(max: MaxCounts) {
-  const pts = (val: string, votes: string, p: "royalroad" | "goodreads" | "progfans") =>
-    `(case when ${votes} >= ${SCORE_MIN_VOTES[p]} then greatest(0, least(1, (${val} - ${RATING_FLOOR[p]}) / ${RATING_CAP[p] - RATING_FLOOR[p]})) * 30 else 0 end)`;
-  const q = (votes: string, p: "royalroad" | "goodreads" | "progfans") =>
-    `(case when ${votes} >= ${SCORE_MIN_VOTES[p]} then 1 else 0 end)`;
-  const vol = (votes: string, m: number, w: number) =>
-    m > 0 && w > 0
-      ? `(case when ${votes} > 0 then ln(${votes} + 1) / ln(${m} + 1) * ${w} else 0 end)`
-      : "0";
-
-  const rating = `(${pts("rr.value", "rr.votes", "royalroad")} + ${pts("gr.value", "gr.votes", "goodreads")} + ${pts("pf.value", "pf.votes", "progfans")})`;
-  const nq = `(${q("rr.votes", "royalroad")} + ${q("gr.votes", "goodreads")} + ${q("pf.votes", "progfans")})`;
-  const volume = `(${vol("gr.votes", max.goodreads, VOLUME_WEIGHT.goodreads)} + ${vol("pf.votes", max.progfans, VOLUME_WEIGHT.progfans)})`;
-  return sql.raw(`(case when ${nq} > 0 then ${rating} * 3.0 / ${nq} + ${volume} else null end)`);
-}
-
-/** Catalog-wide max rating counts per platform — the ceiling for the volume score. */
-export async function getScoreMaxCounts(): Promise<MaxCounts> {
-  const [r] = await db.execute<Record<string, unknown>>(sql`
-    select
-      coalesce(max(case when source = 'royalroad' then votes end), 0) as rr,
-      coalesce(max(case when source = 'goodreads' then votes end), 0) as gr
-    from series_ratings`);
-  const [p] = await db.execute<Record<string, unknown>>(sql`
-    select coalesce(max(c), 0) as pf
-    from (select count(score) c from list_entries where score is not null group by series_id) x`);
-  return {
-    royalroad: Number(r?.rr ?? 0),
-    goodreads: Number(r?.gr ?? 0),
-    progfans: Number(p?.pf ?? 0),
-  };
-}
-
-function scoreFor(
-  rr: SourceRating | null,
-  gr: SourceRating | null,
-  pf: SourceRating | null,
-  max: MaxCounts,
-): { grade: Grade; score: number } {
-  const stats: SeriesStats = {
-    royalroad: rr ? { mean: rr.value, count: rr.votes } : null,
-    goodreads: gr ? { mean: gr.value, count: gr.votes } : null,
-    progfans: pf ? { mean: pf.value, count: pf.votes } : null,
-  };
-  const { grade, score } = scoreSeries(stats, max);
-  return { grade, score: Math.round(score) };
+/** The badge grade + displayed (floored) score for a stored tier_score. */
+function tierBadge(tierScore: unknown): { grade: Grade; score: number } {
+  const t = tierScore == null ? null : Number(tierScore);
+  return { grade: tierGradeFromScore(t), score: t == null ? 0 : Math.floor(t) };
 }
 
 export type CatalogItem = {
@@ -182,7 +125,6 @@ export async function getCatalogCount(p: CatalogParams = {}): Promise<number> {
 
 export async function getCatalog(p: CatalogParams = {}): Promise<CatalogItem[]> {
   const userId = p.userId;
-  const max = await getScoreMaxCounts();
   const conds = catalogConds(p);
   const page = Math.max(1, p.page ?? 1);
   const pageSize = p.pageSize ?? CATALOG_PAGE_SIZE;
@@ -201,7 +143,7 @@ export async function getCatalog(p: CatalogParams = {}): Promise<CatalogItem[]> 
   // Rating sorts gate on the vote threshold so a flukey 5.0/3-votes can't top
   // the list (the figures themselves are still shown everywhere).
   const ORDER: Record<CatalogSort, ReturnType<typeof sql>> = {
-    tier: sql`${tierScoreSql(max)} desc nulls last, s.popularity desc`,
+    tier: sql`s.tier_score desc nulls last, s.popularity desc`,
     popularity: sql`s.popularity desc`,
     rating_rr: sql`(case when rr.votes >= ${SCORE_MIN_VOTES.royalroad} then rr.value end) desc nulls last, s.popularity desc`,
     rating_gr: sql`(case when gr.votes >= ${SCORE_MIN_VOTES.goodreads} then gr.value end) desc nulls last, s.popularity desc`,
@@ -216,7 +158,7 @@ export async function getCatalog(p: CatalogParams = {}): Promise<CatalogItem[]> 
 
   const rows = await db.execute<Record<string, unknown>>(sql`
     select
-      s.id, s.slug, s.title, s.cover_url, s.status, s.popularity,
+      s.id, s.slug, s.title, s.cover_url, s.status, s.popularity, s.tier_score,
       s.description,
       s.length_words, s.length_chapters,
       coalesce(string_agg(distinct a.name, ', '), '') as authors,
@@ -249,7 +191,7 @@ export async function getCatalog(p: CatalogParams = {}): Promise<CatalogItem[]> 
     const rr = toRating(r.rr_value, r.rr_votes);
     const gr = toRating(r.gr_value, r.gr_votes);
     const progfans = toRating(r.pf_value, r.pf_votes);
-    const { grade, score } = scoreFor(rr, gr, progfans, max);
+    const { grade, score } = tierBadge(r.tier_score);
     return {
       id: Number(r.id),
       slug: String(r.slug),
@@ -308,7 +250,6 @@ export type SeriesBook = {
 };
 
 export async function getSeries(slug: string): Promise<SeriesDetail | null> {
-  const max = await getScoreMaxCounts();
   const [s] = await db.execute<Record<string, unknown>>(sql`
     select s.*, coalesce((
       select json_agg(a.name order by a.name)
@@ -352,15 +293,6 @@ export async function getSeries(slug: string): Promise<SeriesDetail | null> {
     ...(pf ? [{ source: "progfans", value: pf.value, votes: pf.votes }] : []),
   ];
 
-  const rr = toRating(
-    ratings.find((r) => r.source === "royalroad")?.value,
-    ratings.find((r) => r.source === "royalroad")?.votes,
-  );
-  const gr = toRating(
-    ratings.find((r) => r.source === "goodreads")?.value,
-    ratings.find((r) => r.source === "goodreads")?.votes,
-  );
-
   return {
     id: Number(s.id),
     slug: String(s.slug),
@@ -402,7 +334,7 @@ export async function getSeries(slug: string): Promise<SeriesDetail | null> {
       gr: b.gr_value == null ? null : { value: Number(b.gr_value), votes: Number(b.gr_votes ?? 0) },
       goodreadsUrl: (b.gr_url as string | null) ?? null,
     })),
-    ...scoreFor(rr, gr, pf, max),
+    ...tierBadge(s.tier_score),
   };
 }
 

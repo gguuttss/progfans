@@ -170,3 +170,93 @@ export function scoreSeries(stats: SeriesStats, max: MaxCounts): { score: number
   const score = (ratingSum * 3) / qualifying + volume;
   return { score, grade: gradeFromScore(score) };
 }
+
+/* ────────────────────────────────────────────────────────────────────────
+ * Percentile-based tier score (2026-06 rework).
+ *
+ * Four categories — Goodreads rating, Goodreads #ratings, Royal Road rating,
+ * Royal Road #ratings — each scored as the series' percentile within that
+ * category's qualifying population. A platform only counts when it clears its
+ * MIN_RATING_VOTES threshold; below that it's treated as having no data.
+ *
+ * The score weights the series' OWN categories best→worst, so a series is judged
+ * mostly by its strongest signal (popularity can offset a lukewarm average):
+ *   - GR ✓ and RR ✓:  70 / 15 / 10 / 5
+ *   - RR missing:      85 / 15            (two GR categories; max 100)
+ *   - GR missing:      80 / 15 / 2.5 / 2.5 (RR gets 80/15; GR forced to 0th
+ *                                          percentile → max 95, niche penalty)
+ * Returns null when neither platform qualifies (badge "?").
+ * ──────────────────────────────────────────────────────────────────────── */
+
+/**
+ * percent_rank for each value: the fraction of the population scoring strictly
+ * below it, `#{below} / (n - 1)`, in [0, 1]. Ties share the lower rank. Output
+ * is index-aligned to the input. A single-element population maps to 1.
+ */
+export function percentRanks(values: number[]): number[] {
+  const n = values.length;
+  if (n === 0) return [];
+  if (n === 1) return [1];
+  const sorted = [...values].sort((a, b) => a - b);
+  return values.map((v) => {
+    let lo = 0;
+    let hi = n;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if ((sorted[mid] as number) < v) lo = mid + 1;
+      else hi = mid;
+    }
+    return lo / (n - 1);
+  });
+}
+
+/** A series' percentile (0–1) in each category, or null where it doesn't qualify. */
+export type TierPercentiles = {
+  grRating: number | null;
+  grVolume: number | null;
+  rrRating: number | null;
+  rrVolume: number | null;
+};
+
+/** Combine category percentiles into a 0–100 tier score; null if untiered. */
+export function tierScore(p: TierPercentiles): number | null {
+  const gr: [number, number] | null =
+    p.grRating != null && p.grVolume != null ? [p.grRating, p.grVolume] : null;
+  const rr: [number, number] | null =
+    p.rrRating != null && p.rrVolume != null ? [p.rrRating, p.rrVolume] : null;
+  if (!gr && !rr) return null;
+
+  let values: number[];
+  let weights: number[];
+  if (gr && rr) {
+    values = [gr[0], gr[1], rr[0], rr[1]];
+    weights = [70, 15, 10, 5];
+  } else if (gr) {
+    values = [gr[0], gr[1]];
+    weights = [85, 15];
+  } else {
+    const r = rr as [number, number];
+    values = [r[0], r[1], 0, 0]; // GR forced to 0th percentile
+    weights = [80, 15, 2.5, 2.5];
+  }
+  values.sort((a, b) => b - a); // biggest weight to the strongest category
+  return values.reduce((sum, v, i) => sum + v * (weights[i] ?? 0), 0);
+}
+
+// Fixed tier-score cutoffs (calibrated 2026-06 to the live distribution).
+const TIER_GRADE_BANDS: [number, Grade][] = [
+  [90, "S+"],
+  [85, "S"],
+  [75, "A"],
+  [60, "B"],
+  [45, "C"],
+  [25, "D"],
+  [0, "F"],
+];
+
+/** Letter grade for a tier score; null/undefined (untiered) → "?". */
+export function tierGradeFromScore(score: number | null | undefined): Grade {
+  if (score == null) return "?";
+  for (const [min, grade] of TIER_GRADE_BANDS) if (score >= min) return grade;
+  return "F";
+}
