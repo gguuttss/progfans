@@ -117,7 +117,7 @@ export async function generateMetadata({
       title: s.title,
       description: desc,
       url: `/series/${slug}`,
-      images: s.coverUrl ? [{ url: s.coverUrl }] : [],
+      // The OG image comes from ./opengraph-image (a branded card).
     },
   };
 }
@@ -156,7 +156,7 @@ export default async function SeriesPage({ params }: { params: Promise<{ slug: s
   // scores feed the aggregateRating — never external ratings — per Google's
   // review-snippet guidelines.
   const pfRating = ratings.find((r) => r.source === "progfans");
-  const jsonLd = {
+  const bookLd = {
     "@context": "https://schema.org",
     "@type": "Book",
     name: s.title,
@@ -180,6 +180,24 @@ export default async function SeriesPage({ params }: { params: Promise<{ slug: s
         }
       : {}),
   };
+
+  const jsonLd = [
+    bookLd,
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "ProgFans", item: "https://progfans.com" },
+        { "@type": "ListItem", position: 2, name: "Browse", item: "https://progfans.com/browse" },
+        {
+          "@type": "ListItem",
+          position: 3,
+          name: s.title,
+          item: `https://progfans.com/series/${slug}`,
+        },
+      ],
+    },
+  ];
 
   const editButton = (
     <Link
