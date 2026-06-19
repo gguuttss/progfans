@@ -74,8 +74,11 @@ function VenueIcon({ source }: { source: string }) {
 
 const amazonSearch = (q: string) =>
   withAmazonTag(`https://www.amazon.com/s?k=${encodeURIComponent(q)}&i=stripbooks`);
+// Audible audiobooks sell through amazon.com (node 18145289011 = "Audible Books
+// & Originals"), so the affiliate tag earns there — a plain audible.com link
+// can't be tagged. A purchase pays commission; an Audible signup pays a bounty.
 const audibleSearch = (q: string) =>
-  `https://www.audible.com/search?keywords=${encodeURIComponent(q)}`;
+  withAmazonTag(`https://www.amazon.com/s?k=${encodeURIComponent(q)}&rh=n:18145289011`);
 
 function ExternalIcon({ className }: { className?: string }) {
   return (
