@@ -104,13 +104,19 @@ export async function generateMetadata({
   const { slug } = await params;
   const s = await getSeries(slug);
   if (!s) return {};
-  const desc = s.description?.slice(0, 160) ?? `${s.title} on ProgFans.`;
+  const author = s.authors[0];
+  const desc =
+    s.description?.replace(/\s+/g, " ").slice(0, 160) ??
+    `${s.title}${author ? ` by ${author}` : ""} — ratings, books, and where to read on ProgFans.`;
   return {
-    title: `${s.title} — ProgFans`,
+    title: `${s.title}${author ? ` by ${author}` : ""} — ProgFans`,
     description: desc,
+    alternates: { canonical: `/series/${slug}` },
     openGraph: {
+      type: "book",
       title: s.title,
       description: desc,
+      url: `/series/${slug}`,
       images: s.coverUrl ? [{ url: s.coverUrl }] : [],
     },
   };
@@ -146,6 +152,35 @@ export default async function SeriesPage({ params }: { params: Promise<{ slug: s
     Boolean,
   ) as { source: string; value: number; votes: number }[];
 
+  // Schema.org Book structured data (rich results). Only ProgFans's own user
+  // scores feed the aggregateRating — never external ratings — per Google's
+  // review-snippet guidelines.
+  const pfRating = ratings.find((r) => r.source === "progfans");
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Book",
+    name: s.title,
+    url: `https://progfans.com/series/${slug}`,
+    ...(author ? { author: { "@type": "Person", name: author } } : {}),
+    ...(s.coverUrl ? { image: s.coverUrl } : {}),
+    ...(s.description
+      ? { description: s.description.replace(/\s+/g, " ").trim().slice(0, 600) }
+      : {}),
+    genre: ["Progression Fantasy", "LitRPG"],
+    inLanguage: "en",
+    ...(pfRating && pfRating.votes > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: Math.round(pfRating.value * 100) / 100,
+            ratingCount: pfRating.votes,
+            bestRating: 10,
+            worstRating: 1,
+          },
+        }
+      : {}),
+  };
+
   const editButton = (
     <Link
       href={`/series/${slug}/edit`}
@@ -171,6 +206,11 @@ export default async function SeriesPage({ params }: { params: Promise<{ slug: s
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-8">
+      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static JSON-LD we build server-side */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <SiteHeader />
 
       <div className="flex flex-col gap-6 sm:flex-row">

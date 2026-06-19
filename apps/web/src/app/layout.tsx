@@ -21,10 +21,23 @@ const mono = JetBrains_Mono({
   display: "swap",
 });
 
+const SITE_DESC =
+  "Track and discover progression fantasy and litRPG. Filter by trope, system, and rank, with ratings aggregated from Royal Road and Goodreads.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL("https://progfans.com"),
   title: "ProgFans — discover progression fantasy & litRPG",
-  description:
-    "Track and discover progression fantasy and litRPG. Filter by trope, system, and rank.",
+  description: SITE_DESC,
+  applicationName: "ProgFans",
+  openGraph: {
+    type: "website",
+    siteName: "ProgFans",
+    locale: "en_US",
+    url: "https://progfans.com",
+    title: "ProgFans — discover progression fantasy & litRPG",
+    description: SITE_DESC,
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
