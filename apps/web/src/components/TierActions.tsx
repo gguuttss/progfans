@@ -44,7 +44,7 @@ export function TierActions({
     if (downloading) return;
     setDownloading(true);
     try {
-      const res = await fetch(`/tier/${slug}/share`);
+      const res = await fetch(`/tier/${slug}/share?t=${Date.now()}`, { cache: "no-store" });
       if (!res.ok) throw new Error(String(res.status));
       const url = URL.createObjectURL(await res.blob());
       const a = document.createElement("a");

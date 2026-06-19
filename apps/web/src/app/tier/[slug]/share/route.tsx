@@ -25,7 +25,9 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
     ...(fonts.length ? { fonts } : {}),
     headers: {
       "Content-Disposition": `attachment; filename="progfans-tier-${slug}.png"`,
-      "Cache-Control": "public, max-age=300",
+      // The image reflects mutable data (title, tiers, covers) — never serve a
+      // stale copy after an edit.
+      "Cache-Control": "no-store, max-age=0",
     },
   });
 }
