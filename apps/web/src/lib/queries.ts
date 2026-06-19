@@ -88,9 +88,7 @@ function catalogConds(p: CatalogParams) {
     conds.push(sql`s.status::text in (${list})`);
   }
   if (p.tropes?.length) {
-    // Faceted search: OR within a trope category, AND across categories. The
-    // series must carry at least one selected trope from every selected category
-    // (e.g. "grimdark OR cozy" within Tone, but that AND a selected Power System).
+    // AND semantics: a series must carry every selected trope.
     const list = sql.join(
       p.tropes.map((s) => sql`${s}`),
       sql`, `,
@@ -100,7 +98,7 @@ function catalogConds(p: CatalogParams) {
       join tropes t on t.id = st.trope_id
       where t.slug in (${list})
       group by st.series_id
-      having count(distinct t.category) = (select count(distinct category) from tropes where slug in (${list}))
+      having count(distinct t.slug) = ${p.tropes.length}
     )`);
   }
   if (p.excludeTropes?.length) {

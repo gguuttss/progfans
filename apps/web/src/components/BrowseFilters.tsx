@@ -28,9 +28,9 @@ export function BrowseFilters({ tropeOptions, tropes, excludeTropes, statuses }:
   const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
 
-  // Which trope categories are expanded — user-controlled, and seeded open for
-  // any category that already has a selection. Persists across filter changes,
-  // so toggling a filter no longer collapses the section.
+  // Which trope categories are expanded — user-controlled, seeded open for any
+  // category that already has a selection. Persists across filter changes, so
+  // toggling a filter no longer collapses the section.
   const [openCats, setOpenCats] = useState<Set<string>>(() => {
     const s = new Set<string>();
     for (const t of tropeOptions) {
@@ -47,23 +47,33 @@ export function BrowseFilters({ tropeOptions, tropes, excludeTropes, statuses }:
       return n;
     });
 
-  // Any control change re-runs the query immediately (no Apply button).
-  const apply = (form: HTMLFormElement) => {
-    const fd = new FormData(form);
+  // The URL is the single source of truth. Each control change rebuilds the
+  // query from the current props (which mirror the URL) and navigates — no
+  // uncontrolled form state to fall out of sync.
+  const navigate = (next: { statuses?: string[]; tropes?: string[]; xtropes?: string[] }) => {
     const params = new URLSearchParams();
     const q = searchParams.get("q");
     if (q) params.set("q", q);
-    for (const v of fd.getAll("statuses")) params.append("statuses", String(v));
-    for (const v of fd.getAll("tropes")) params.append("tropes", String(v));
-    // Content-warning tri-state: cw_<slug> = "" | include | exclude
-    for (const [k, v] of fd.entries()) {
-      if (!k.startsWith("cw_")) continue;
-      const slug = k.slice(3);
-      if (v === "include") params.append("tropes", slug);
-      else if (v === "exclude") params.append("xtropes", slug);
-    }
+    for (const s of next.statuses ?? statuses) params.append("statuses", s);
+    for (const t of next.tropes ?? tropes) params.append("tropes", t);
+    for (const t of next.xtropes ?? excludeTropes) params.append("xtropes", t);
     router.push(params.toString() ? `/browse?${params}` : "/browse", { scroll: false });
   };
+  const toggle = (arr: string[], v: string) =>
+    arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
+  const toggleStatus = (s: string) => navigate({ statuses: toggle(statuses, s) });
+  const toggleTrope = (slug: string) => navigate({ tropes: toggle(tropes, slug) });
+  const setCw = (slug: string, mode: "" | "include" | "exclude") =>
+    navigate({
+      tropes:
+        mode === "include"
+          ? [...tropes.filter((x) => x !== slug), slug]
+          : tropes.filter((x) => x !== slug),
+      xtropes:
+        mode === "exclude"
+          ? [...excludeTropes.filter((x) => x !== slug), slug]
+          : excludeTropes.filter((x) => x !== slug),
+    });
 
   const byCategory = new Map<string, TropeOption[]>();
   for (const t of tropeOptions) {
@@ -74,11 +84,11 @@ export function BrowseFilters({ tropeOptions, tropes, excludeTropes, statuses }:
 
   const active = statuses.length + tropes.length + excludeTropes.length;
   const legend = "mb-1.5 font-mono text-xs tracking-wider text-muted uppercase";
-  const summary =
+  const summaryCls =
     "cursor-pointer font-mono text-xs tracking-wider text-muted uppercase select-none";
 
   const panel = (
-    <form onChange={(e) => apply(e.currentTarget)} className="space-y-5 text-sm">
+    <div className="space-y-5 text-sm">
       <div className="flex items-center justify-between md:hidden">
         <span className="font-display text-lg font-bold">Filters</span>
         <button
@@ -98,9 +108,8 @@ export function BrowseFilters({ tropeOptions, tropes, excludeTropes, statuses }:
             <label key={s} className="flex cursor-pointer items-center gap-2">
               <input
                 type="checkbox"
-                name="statuses"
-                value={s}
-                defaultChecked={statuses.includes(s)}
+                checked={statuses.includes(s)}
+                onChange={() => toggleStatus(s)}
                 className="accent-gold"
               />
               {STATUS_LABEL[s]}
@@ -120,7 +129,7 @@ export function BrowseFilters({ tropeOptions, tropes, excludeTropes, statuses }:
               onToggle={(e) => toggleCat(category, e.currentTarget.open)}
               className="border-t border-line pt-3"
             >
-              <summary className={summary}>{TROPE_CATEGORY_LABEL[category]}</summary>
+              <summary className={summaryCls}>{TROPE_CATEGORY_LABEL[category]}</summary>
               <div className="mt-2 space-y-1.5">
                 {list.map((t) => {
                   const val = tropes.includes(t.slug)
@@ -132,8 +141,10 @@ export function BrowseFilters({ tropeOptions, tropes, excludeTropes, statuses }:
                     <div key={t.slug} className="flex items-center justify-between gap-2">
                       <span>{t.name}</span>
                       <select
-                        name={`cw_${t.slug}`}
-                        defaultValue={val}
+                        value={val}
+                        onChange={(e) =>
+                          setCw(t.slug, e.target.value as "" | "include" | "exclude")
+                        }
                         className="rounded border border-line bg-card px-1.5 py-1 text-xs text-ink outline-none focus:border-gold"
                       >
                         <option value="">Any</option>
@@ -155,15 +166,14 @@ export function BrowseFilters({ tropeOptions, tropes, excludeTropes, statuses }:
             onToggle={(e) => toggleCat(category, e.currentTarget.open)}
             className="border-t border-line pt-3"
           >
-            <summary className={summary}>{TROPE_CATEGORY_LABEL[category] ?? category}</summary>
+            <summary className={summaryCls}>{TROPE_CATEGORY_LABEL[category] ?? category}</summary>
             <div className="mt-2 space-y-1">
               {list.map((t) => (
                 <label key={t.slug} className="flex cursor-pointer items-center gap-2">
                   <input
                     type="checkbox"
-                    name="tropes"
-                    value={t.slug}
-                    defaultChecked={tropes.includes(t.slug)}
+                    checked={tropes.includes(t.slug)}
+                    onChange={() => toggleTrope(t.slug)}
                     className="accent-gold"
                   />
                   {t.name}
@@ -174,14 +184,13 @@ export function BrowseFilters({ tropeOptions, tropes, excludeTropes, statuses }:
         );
       })}
 
-      {/* Full nav so Clear resets the uncontrolled inputs. */}
       <a
         href="/browse"
         className="block border-t border-line pt-4 text-muted transition-colors hover:text-ink"
       >
         Clear all filters
       </a>
-    </form>
+    </div>
   );
 
   return (
