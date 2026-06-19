@@ -25,6 +25,7 @@ export function TierActions({
 }) {
   const [copied, setCopied] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [deleting, startDelete] = useTransition();
 
   const copy = async () => {
@@ -34,6 +35,29 @@ export function TierActions({
       setTimeout(() => setCopied(false), 1800);
     } catch {
       // ignore (e.g. insecure context)
+    }
+  };
+
+  // Fetch the rendered PNG ourselves so we can show progress (the image takes a
+  // moment to generate; a plain <a download> gives the user no feedback).
+  const download = async () => {
+    if (downloading) return;
+    setDownloading(true);
+    try {
+      const res = await fetch(`/tier/${slug}/share`);
+      if (!res.ok) throw new Error(String(res.status));
+      const url = URL.createObjectURL(await res.blob());
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `progfans-tier-${slug}.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      // best-effort; leave the button usable to retry
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -61,9 +85,16 @@ export function TierActions({
         <button type="button" onClick={copy} className={NEUTRAL}>
           <LinkIcon /> {copied ? "Link copied!" : "Copy link"}
         </button>
-        <a href={`/tier/${slug}/share`} download={`progfans-tier-${slug}.png`} className={NEUTRAL}>
-          <DownloadIcon /> Download image
-        </a>
+        <button
+          type="button"
+          onClick={download}
+          disabled={downloading}
+          aria-busy={downloading}
+          className={`${NEUTRAL} disabled:cursor-default disabled:opacity-70`}
+        >
+          {downloading ? <Spinner /> : <DownloadIcon />}{" "}
+          {downloading ? "Preparing image…" : "Download image"}
+        </button>
       </div>
 
       {confirming && (
@@ -160,6 +191,14 @@ function DownloadIcon() {
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
       <polyline points="7 10 12 15 17 10" />
       <line x1="12" y1="15" x2="12" y2="3" />
+    </svg>
+  );
+}
+
+function Spinner() {
+  return (
+    <svg {...iconProps} className="animate-spin">
+      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
     </svg>
   );
 }
