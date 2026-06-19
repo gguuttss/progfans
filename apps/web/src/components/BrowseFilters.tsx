@@ -5,7 +5,7 @@ import { useState } from "react";
 import { STATUS_LABEL, TROPE_CATEGORY_LABEL } from "@/lib/format";
 import type { TropeOption } from "@/lib/queries";
 
-const STATUSES = ["ongoing", "completed", "hiatus", "stub", "dropped"];
+const STATUSES = ["ongoing", "completed", "hiatus", "dropped", "stub", "unknown"];
 const CATEGORY_ORDER = [
   "power_system",
   "setting",
@@ -99,6 +99,13 @@ export function BrowseFilters({ tropeOptions, tropes, excludeTropes, statuses }:
         >
           ✕
         </button>
+      </div>
+
+      <div className="rounded-md border border-gold/40 bg-gold/10 px-3 py-2 text-xs leading-relaxed text-ink/90">
+        Tags and status are community-built and still a work in progress. See something wrong or
+        missing? Open any series and hit{" "}
+        <span className="font-semibold text-gold">“Suggest an edit”</span> — accepted suggestions
+        show on your profile.
       </div>
 
       <fieldset>

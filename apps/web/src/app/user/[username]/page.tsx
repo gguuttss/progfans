@@ -9,7 +9,13 @@ import { StatsBar } from "@/components/StatsBar";
 import { getUser } from "@/lib/auth";
 import { fmtBirthday, fmtDate, fmtRelative } from "@/lib/format";
 import { LIST_STATUS_LABEL, type ListStatusValue } from "@/lib/list";
-import { getFavorites, getFullProfile, getListStats, getRecentActivity } from "@/lib/queries";
+import {
+  getContributorStats,
+  getFavorites,
+  getFullProfile,
+  getListStats,
+  getRecentActivity,
+} from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -34,10 +40,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   const viewer = await getUser();
   const isOwner = viewer?.id === profile.id;
 
-  const [stats, activity, favorites] = await Promise.all([
+  const [stats, activity, favorites, contrib] = await Promise.all([
     getListStats(profile.id),
     getRecentActivity(profile.id, 5),
     getFavorites(profile.id),
+    getContributorStats(profile.id),
   ]);
 
   const birthday = fmtBirthday(profile.birthday, profile.birthdayPrecision);
@@ -89,6 +96,15 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
           )}
 
           <p className="mt-2 text-sm text-muted">{meta.join(" · ")}</p>
+
+          {contrib.made > 0 && (
+            <p className="mt-1.5 text-sm font-medium text-gold">
+              {contrib.accepted} accepted contribution{contrib.accepted === 1 ? "" : "s"}
+              {contrib.made > contrib.accepted && (
+                <span className="font-normal text-muted"> · {contrib.made} suggested</span>
+              )}
+            </p>
+          )}
         </div>
       </div>
 

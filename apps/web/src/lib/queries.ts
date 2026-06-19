@@ -603,6 +603,18 @@ export async function listManagedUsers(search?: string): Promise<ManagedUser[]> 
   }));
 }
 
+/** How many catalog edits/requests a user has proposed, and how many were accepted.
+ *  Sourced from change_requests (admins' edits apply directly and aren't counted). */
+export async function getContributorStats(
+  userId: string,
+): Promise<{ made: number; accepted: number }> {
+  const [r] = await db.execute<Record<string, unknown>>(sql`
+    select count(*)::int as made,
+      count(*) filter (where status in ('approved', 'added'))::int as accepted
+    from change_requests where proposer_id = ${userId}`);
+  return { made: Number(r?.made ?? 0), accepted: Number(r?.accepted ?? 0) };
+}
+
 export type ListStats = {
   plan: number;
   reading: number;
