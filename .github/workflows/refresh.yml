@@ -49,6 +49,14 @@ jobs:
           REFRESH_LIMIT: ${{ github.event.inputs.gr_limit || '50' }}
         run: pnpm --filter @progfans/scraper refresh:gr
 
+      - name: Self-host new book covers (+ point multi-book series at book 1)
+        if: always() # host whatever new books landed, even on a partial refresh
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: pnpm --filter @progfans/scraper host:book-covers
+
       - name: Recompute tier scores (percentiles shift as ratings change)
         if: always() # keep scores fresh even if a refresh step partially failed
         env:

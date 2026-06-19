@@ -19,6 +19,7 @@
     "import:lo5": "tsx src/lo5/import.ts",
     "dedup": "tsx src/external/dedup.ts",
     "host:covers": "tsx src/covers/run.ts",
+    "host:book-covers": "tsx src/covers/books.ts",
     "covers:gr": "tsx src/covers/from-goodreads.ts",
     "backfill:gr": "tsx src/goodreads/backfill.ts",
     "export:untagged": "tsx src/tropes/export-untagged.ts",

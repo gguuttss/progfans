@@ -12,7 +12,7 @@ export const isHosted = (url: string | null | undefined): boolean =>
  * via the Storage REST API (avoids the supabase-js realtime/WebSocket dep);
  * returns our public URL.
  */
-export async function hostCover(seriesId: number, sourceUrl: string): Promise<string> {
+export async function hostCover(key: string | number, sourceUrl: string): Promise<string> {
   const res = await fetch(sourceUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
   if (!res.ok) throw new Error(`fetch ${res.status}`);
   const buf = Buffer.from(await res.arrayBuffer());
@@ -21,7 +21,8 @@ export async function hostCover(seriesId: number, sourceUrl: string): Promise<st
 
   const contentType = res.headers.get("content-type") ?? "image/jpeg";
   const ext = contentType.includes("png") ? "png" : contentType.includes("webp") ? "webp" : "jpg";
-  const path = `${seriesId}.${ext}`;
+  // Series covers use `<seriesId>.<ext>`; book covers use `book-<bookId>.<ext>`.
+  const path = `${key}.${ext}`;
 
   const up = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`, {
     method: "POST",
