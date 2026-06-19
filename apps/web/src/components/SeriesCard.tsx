@@ -3,19 +3,10 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { AddToListButton } from "./AddToListButton";
 import { CardDescription } from "./CardDescription";
-import { fmtCompact, fmtRating, STATUS_LABEL } from "@/lib/format";
+import { fmtCompact, fmtRating } from "@/lib/format";
 import type { CatalogItem } from "@/lib/queries";
 import { GradeBadge } from "./GradeBadge";
 import { TropeChip } from "./TropeChip";
-
-const STATUS_DOT: Record<string, string> = {
-  ongoing: "bg-blue-500",
-  completed: "bg-emerald-500",
-  hiatus: "bg-amber-500",
-  dropped: "bg-rose-500",
-  stub: "bg-violet-500",
-  unknown: "bg-muted",
-};
 
 // The ProgFans "pf" mark, matching the logo's black-p / gold-f wordmark.
 function PfMark() {
@@ -73,12 +64,6 @@ export function SeriesCard({ item, signedIn }: { item: CatalogItem; signedIn: bo
                 {item.title}
               </h3>
               <p className="truncate text-sm text-muted">{item.authors || "Unknown author"}</p>
-              <span className="mt-0.5 inline-flex items-center gap-1 text-xs text-muted">
-                <span
-                  className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[item.status] ?? "bg-muted"}`}
-                />
-                {STATUS_LABEL[item.status] ?? "Unknown"}
-              </span>
             </div>
             <GradeBadge grade={item.grade} score={item.score} className="shrink-0" />
           </div>

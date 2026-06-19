@@ -102,10 +102,11 @@ export function BrowseFilters({ tropeOptions, tropes, excludeTropes, statuses }:
       </div>
 
       <div className="rounded-md border border-gold/40 bg-gold/10 px-3 py-2 text-xs leading-relaxed text-ink/90">
-        Tags and status are community-built and still a work in progress. See something wrong or
-        missing? Open any series and hit{" "}
-        <span className="font-semibold text-gold">“Suggest an edit”</span> — accepted suggestions
-        show on your profile.
+        <p>Tags and status are community-built and still a work in progress.</p>
+        <p className="mt-2">
+          See something wrong or missing? Open any series and hit{" "}
+          <span className="font-semibold text-gold">“Suggest an edit”</span>.
+        </p>
       </div>
 
       <fieldset>
@@ -227,7 +228,7 @@ export function BrowseFilters({ tropeOptions, tropes, excludeTropes, statuses }:
       <div
         className={`fixed inset-y-0 left-0 z-50 w-80 max-w-[85%] overflow-y-auto bg-card p-4 shadow-xl transition-transform ${
           open ? "translate-x-0" : "-translate-x-full"
-        } md:sticky md:inset-auto md:top-6 md:z-auto md:h-max md:w-auto md:max-w-none md:translate-x-0 md:overflow-visible md:bg-transparent md:p-0 md:shadow-none`}
+        } md:sticky md:inset-auto md:top-16 md:z-auto md:h-max md:w-auto md:max-w-none md:translate-x-0 md:overflow-visible md:bg-transparent md:p-0 md:shadow-none`}
       >
         {panel}
       </div>
