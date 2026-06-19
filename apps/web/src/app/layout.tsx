@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, Hanken_Grotesk, JetBrains_Mono } from "next/font/google";
 import { cookies } from "next/headers";
+import { SiteFooter } from "@/components/SiteFooter";
 import "./globals.css";
 
 const display = Bricolage_Grotesque({
@@ -34,7 +35,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       suppressHydrationWarning
       className={`${display.variable} ${body.variable} ${mono.variable} ${dark ? "dark" : ""}`}
     >
-      <body>{children}</body>
+      <body>
+        {children}
+        <SiteFooter />
+      </body>
     </html>
   );
 }
