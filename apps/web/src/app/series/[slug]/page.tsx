@@ -9,6 +9,7 @@ import { FavoriteStar } from "@/components/FavoriteStar";
 import { GradeBadge } from "@/components/GradeBadge";
 import { SiteHeader } from "@/components/SiteHeader";
 import { TropeChip } from "@/components/TropeChip";
+import { withAmazonTag } from "@/lib/affiliate";
 import { getProfile, getUser } from "@/lib/auth";
 import { FACET_LABEL, fmtCompact, fmtInt, fmtRating, TROPE_CATEGORY_LABEL } from "@/lib/format";
 import {
@@ -72,7 +73,7 @@ function VenueIcon({ source }: { source: string }) {
 }
 
 const amazonSearch = (q: string) =>
-  `https://www.amazon.com/s?k=${encodeURIComponent(q)}&i=stripbooks`;
+  withAmazonTag(`https://www.amazon.com/s?k=${encodeURIComponent(q)}&i=stripbooks`);
 const audibleSearch = (q: string) =>
   `https://www.audible.com/search?keywords=${encodeURIComponent(q)}`;
 
