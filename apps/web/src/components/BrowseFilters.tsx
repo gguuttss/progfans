@@ -28,6 +28,25 @@ export function BrowseFilters({ tropeOptions, tropes, excludeTropes, statuses }:
   const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
 
+  // Which trope categories are expanded — user-controlled, and seeded open for
+  // any category that already has a selection. Persists across filter changes,
+  // so toggling a filter no longer collapses the section.
+  const [openCats, setOpenCats] = useState<Set<string>>(() => {
+    const s = new Set<string>();
+    for (const t of tropeOptions) {
+      if (tropes.includes(t.slug) || excludeTropes.includes(t.slug)) s.add(t.category);
+    }
+    return s;
+  });
+  const toggleCat = (category: string, isOpen: boolean) =>
+    setOpenCats((prev) => {
+      if (isOpen === prev.has(category)) return prev;
+      const n = new Set(prev);
+      if (isOpen) n.add(category);
+      else n.delete(category);
+      return n;
+    });
+
   // Any control change re-runs the query immediately (no Apply button).
   const apply = (form: HTMLFormElement) => {
     const fd = new FormData(form);
@@ -94,11 +113,13 @@ export function BrowseFilters({ tropeOptions, tropes, excludeTropes, statuses }:
         const list = byCategory.get(category)!;
 
         if (category === "content_warning") {
-          const anyActive = list.some(
-            (t) => tropes.includes(t.slug) || excludeTropes.includes(t.slug),
-          );
           return (
-            <details key={category} open={anyActive} className="border-t border-line pt-3">
+            <details
+              key={category}
+              open={openCats.has(category)}
+              onToggle={(e) => toggleCat(category, e.currentTarget.open)}
+              className="border-t border-line pt-3"
+            >
               <summary className={summary}>{TROPE_CATEGORY_LABEL[category]}</summary>
               <div className="mt-2 space-y-1.5">
                 {list.map((t) => {
@@ -127,9 +148,13 @@ export function BrowseFilters({ tropeOptions, tropes, excludeTropes, statuses }:
           );
         }
 
-        const anyChecked = list.some((t) => tropes.includes(t.slug));
         return (
-          <details key={category} open={anyChecked} className="border-t border-line pt-3">
+          <details
+            key={category}
+            open={openCats.has(category)}
+            onToggle={(e) => toggleCat(category, e.currentTarget.open)}
+            className="border-t border-line pt-3"
+          >
             <summary className={summary}>{TROPE_CATEGORY_LABEL[category] ?? category}</summary>
             <div className="mt-2 space-y-1">
               {list.map((t) => (
