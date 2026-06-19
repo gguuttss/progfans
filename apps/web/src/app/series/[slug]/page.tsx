@@ -239,6 +239,7 @@ export default async function SeriesPage({ params }: { params: Promise<{ slug: s
           <div className="mt-3">
             <ActionBar seriesId={s.id} signedIn={Boolean(user)} entry={entry} fav={fav} />
           </div>
+          <BuyOnAmazon books={s.books} author={author} className="mt-3" />
           <div className="mt-4">
             <Tags series={s} />
           </div>
@@ -289,6 +290,7 @@ export default async function SeriesPage({ params }: { params: Promise<{ slug: s
           <div className="mt-4 sm:hidden">
             <ActionBar seriesId={s.id} signedIn={Boolean(user)} entry={entry} fav={fav} />
           </div>
+          <BuyOnAmazon books={s.books} author={author} className="mt-3 sm:hidden" />
 
           {s.description && (
             <p className="mt-5 max-w-3xl leading-relaxed whitespace-pre-line text-ink/90">
@@ -454,16 +456,57 @@ function RatingCard({
   );
 }
 
-function VenueButton({ href, children }: { href: string; children: ReactNode }) {
+function VenueButton({
+  href,
+  children,
+  affiliate,
+}: {
+  href: string;
+  children: ReactNode;
+  affiliate?: boolean;
+}) {
   return (
     <a
       href={href}
       target="_blank"
-      rel="noopener noreferrer"
+      // Affiliate venues get sponsored+nofollow per Google's link-attribution rules.
+      rel={affiliate ? "sponsored nofollow noopener" : "noopener noreferrer"}
       className="group inline-flex items-center gap-1.5 rounded-md border border-line px-2.5 py-1 text-xs font-medium text-ink transition-colors hover:border-gold hover:bg-line/30"
     >
       {children}
       <ExternalIcon className="text-muted transition-colors group-hover:text-gold" />
+    </a>
+  );
+}
+
+/**
+ * Prominent top-of-page "Buy on Amazon" CTA. Only series with catalogued books
+ * get one — books come from Goodreads, so their presence means a published
+ * edition exists; web-serial-only entries (no books) would just hit an empty
+ * Amazon search, so we omit it for them. Searches the first book's title.
+ */
+function BuyOnAmazon({
+  books,
+  author,
+  className,
+}: {
+  books: SeriesBook[];
+  author: string;
+  className?: string;
+}) {
+  const first = books[0];
+  if (!first) return null;
+  const q = `${first.title} ${author}`.trim();
+  return (
+    <a
+      href={amazonSearch(q)}
+      target="_blank"
+      rel="sponsored nofollow noopener"
+      className={`flex items-center justify-center gap-2 rounded-md bg-gold px-3 py-2 text-sm font-semibold text-paper transition-colors hover:bg-gold/90 ${className ?? ""}`}
+    >
+      <Image src="/amazon-logo.png" alt="" width={15} height={15} />
+      Buy on Amazon
+      <ExternalIcon className="opacity-80" />
     </a>
   );
 }
@@ -505,10 +548,10 @@ function BookRow({ book, author }: { book: SeriesBook; author: string }) {
               <Image src="/goodreads-logo.png" alt="" width={13} height={13} /> Goodreads
             </VenueButton>
           )}
-          <VenueButton href={amazonSearch(q)}>
+          <VenueButton href={amazonSearch(q)} affiliate>
             <Image src="/amazon-logo.png" alt="" width={13} height={13} /> Amazon
           </VenueButton>
-          <VenueButton href={audibleSearch(q)}>
+          <VenueButton href={audibleSearch(q)} affiliate>
             <Image src="/audible-logo.png" alt="" width={13} height={13} /> Audible
           </VenueButton>
         </div>

@@ -1,7 +1,7 @@
-// Amazon Associates: append our tracking tag to amazon.* links so qualifying
-// purchases earn a commission. Set AMAZON_ASSOCIATE_TAG (e.g. "progfans-20").
-// Unset → links are returned untouched.
-const TAG = process.env.AMAZON_ASSOCIATE_TAG?.trim();
+// Amazon Associates: append our US tracking tag to amazon.* links so qualifying
+// purchases earn a commission. Defaults to our store ID; AMAZON_ASSOCIATE_TAG
+// can override it (e.g. to test a different marketplace tag).
+const TAG = process.env.AMAZON_ASSOCIATE_TAG?.trim() || "progfans-20";
 
 export function withAmazonTag(url: string): string {
   if (!TAG) return url;
